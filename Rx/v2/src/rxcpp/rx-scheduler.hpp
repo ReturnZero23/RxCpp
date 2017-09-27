@@ -124,7 +124,10 @@ struct action_base
     typedef tag_action action_tag;
 };
 
-class schedulable;
+// note:
+// 声明 class schedulable ，在下面进行的 class schedulable 的定义。
+
+class schedulable; 
 
 /// action provides type-forgetting for a potentially recursive set of calls to a function that takes a schedulable
 class action : public action_base
@@ -380,6 +383,18 @@ struct schedulable_base :
     \ingroup group-core
 
 */
+
+// note:
+//   subscription_base                         subscription_base:subscription_tag
+//          |
+//      worker_base      action_base           worker_base:worker_tag  action_base:action_tag
+//          |                 |
+//          -------------------
+//                   |
+//            scheduler_base                   scheduler_base:clock_type, scheduler_tag
+//                   |
+//               scheduler
+
 class scheduler : public scheduler_base
 {
     typedef scheduler this_type;
@@ -878,6 +893,12 @@ struct time_schedulable
 // Sorts time_schedulable items in priority order sorted
 // on value of time_schedulable.when. Items with equal
 // values for when are sorted in fifo order.
+
+// note：
+// 封装 std::priority_queue (参考http://en.cppreference.com/w/cpp/container/priority_queue)
+// 根据 time_schedulable.when进行优先级排序，当他们相同时，
+// 按先进先出的规则进行排序。
+
 template<class TimePoint>
 class schedulable_queue {
 public:
