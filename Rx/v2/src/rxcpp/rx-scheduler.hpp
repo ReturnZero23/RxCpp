@@ -394,6 +394,11 @@ struct schedulable_base :
 //            scheduler_base                   scheduler_base:clock_type, scheduler_tag
 //                   |
 //               scheduler
+// 以上是 scheduler 的继承结构图，以及继承下来的成员
+// sheduler的内部实现是由 detail::scheduler_interface_ptr(std::shared_ptr<scheduler_interface>) 实现的,
+// scheduler_interface 提供两个纯虚函数：
+//   virtual clock_type::time_point now() const = 0;
+//   virtual worker create_worker(composite_subscription cs) const = 0;
 
 class scheduler : public scheduler_base
 {
