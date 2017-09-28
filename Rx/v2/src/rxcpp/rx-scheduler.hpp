@@ -124,8 +124,8 @@ struct action_base
     typedef tag_action action_tag;
 };
 
-// note:
-// 声明 class schedulable ，在下面进行的 class schedulable 的定义。
+/// note by returnzer0:
+/// 声明 class schedulable ，在下面进行的 class schedulable 的定义。
 
 class schedulable; 
 
@@ -384,21 +384,21 @@ struct schedulable_base :
 
 */
 
-// note:
-//   subscription_base                         subscription_base:subscription_tag
-//          |
-//      worker_base      action_base           worker_base:worker_tag  action_base:action_tag
-//          |                 |
-//          -------------------
-//                   |
-//            scheduler_base                   scheduler_base:clock_type, scheduler_tag
-//                   |
-//               scheduler
-// 以上是 scheduler 的继承结构图，以及继承下来的成员
-// sheduler的内部实现是由 detail::scheduler_interface_ptr(std::shared_ptr<scheduler_interface>) 实现的,
-// scheduler_interface 提供两个纯虚函数：
-//   virtual clock_type::time_point now() const = 0;
-//   virtual worker create_worker(composite_subscription cs) const = 0;
+/// note by returnzer0:
+///   subscription_base                         subscription_base:subscription_tag
+///          |
+///      worker_base      action_base           worker_base:worker_tag  action_base:action_tag
+///          |                 |
+///          -------------------
+///                   |
+///            scheduler_base                   scheduler_base:clock_type, scheduler_tag
+///                   |
+///               scheduler
+/// 以上是 scheduler 的继承结构图，以及继承下来的成员
+/// sheduler的内部实现是由 detail::scheduler_interface_ptr(std::shared_ptr<scheduler_interface>) 实现的,
+/// scheduler_interface 提供两个纯虚函数：
+///   virtual clock_type::time_point now() const = 0;
+///   virtual worker create_worker(composite_subscription cs) const = 0;
 
 class scheduler : public scheduler_base
 {
@@ -424,11 +424,20 @@ public:
     inline clock_type::time_point now() const {
         return inner->now();
     }
+    
     /// create a worker with a lifetime.
     /// when the worker is unsubscribed all scheduled items will be unsubscribed.
     /// items scheduled to a worker will be run one at a time.
     /// scheduling order is preserved: when more than one item is scheduled for
     /// time T then at time T they will be run in the order that they were scheduled.
+
+    /// note by returnzer0:
+    /// 创建一个带 lifetime 的 worker。
+    /// 当 worker 被 unsubsceribed 所有 scheduled items 都将 unsubscribed 。
+    /// 被安排到一个worker里面的 item 一次将会运行一个。
+    /// 安排进 worker 的顺序江北保存：当超过一个 item 被安排进一个 worker 在某时刻 T ，他们
+    /// 将运行按照他们被安排的顺序被运行。
+
     inline worker create_worker(composite_subscription cs = composite_subscription()) const {
         return inner->create_worker(cs);
     }
@@ -899,10 +908,10 @@ struct time_schedulable
 // on value of time_schedulable.when. Items with equal
 // values for when are sorted in fifo order.
 
-// note：
-// 封装 std::priority_queue (参考http://en.cppreference.com/w/cpp/container/priority_queue)
-// 根据 time_schedulable.when进行优先级排序，当他们相同时，
-// 按先进先出的规则进行排序。
+/// note by returnzer0:
+/// 封装 std::priority_queue (参考http://en.cppreference.com/w/cpp/container/priority_queue)
+/// 根据 time_schedulable.when进行优先级排序，当他们相同时，
+/// 按先进先出的规则进行排序。
 
 template<class TimePoint>
 class schedulable_queue {

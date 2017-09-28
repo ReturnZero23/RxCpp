@@ -86,6 +86,10 @@ public:
         return      observable_member(t, std::forward<ZN>(zn)...);
     }
 
+    /// note by returnzer0:
+    /// 下面的这个函数会将 tag_type{}, source, an 拼接成一个元组，然后调用上面的这个函数
+    /// rxu::apply 类似 std::apply 参考 http://en.cppreference.com/w/cpp/utility/apply
+
     template<class Observable>
     auto operator()(Observable source) const 
         -> decltype(rxu::apply(std::tuple_cat(std::make_tuple(tag_type{}, source), (*(tuple_type*)nullptr)), (*(this_type*)nullptr))) {
