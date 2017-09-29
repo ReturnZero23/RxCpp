@@ -9,6 +9,10 @@
 
 namespace rxcpp {
 
+/// note by returnzer0:
+/// 声明 tag_coordinator 和 tag_coordination 
+/// 声明 tag_coordinator 和 tag_coordination 的类型判断模板函数
+
 struct tag_coordinator {};
 struct coordinator_base {typedef tag_coordinator coordinator_tag;};
 
@@ -41,6 +45,11 @@ struct is_coordination : detail::is_coordination<Decayed>
 template<class Coordination, class DecayedCoordination = rxu::decay_t<Coordination>>
 using coordination_tag_t = typename DecayedCoordination::coordination_tag;
 
+/// note by returnzer0:
+///          coordinator_base               coordinator_base : coordinator_tag
+///                 |
+///             coordinator
+
 template<class Input>
 class coordinator : public coordinator_base
 {
@@ -71,6 +80,10 @@ private:
 public:
     input_type input;
 
+    /// note by returnzer0:
+    /// Switch Class T 的类型，如果是 action_function 、 observable 、 subscriber 中的一个，就调用 private 域中
+    /// 的 get 函数取出他的类型然后定义 Type 。
+
     template<class T>
     struct get
     {
@@ -79,6 +92,11 @@ public:
             is_observable<T>::value, get_observable<T>, typename std::conditional<
             is_subscriber<T>::value, get_subscriber<T>, not_supported>::type>::type>::type::type type;
     };
+
+    /// note by returnzer0:
+    /// 使用 Input 类型初始化 coordinator 
+    /// (Input 类型的就是 identity_one_worker 和 serialize_one_worker 类型的input_type 他自己，这样下面定义的几个函数 in,out,act,都是递归调用
+    /// 传入coordinator实例的成员函数 )
 
     coordinator(Input i) : input(i) {}
 
@@ -113,6 +131,10 @@ public:
 
 class identity_one_worker : public coordination_base
 {
+    /// note by returnzer0:
+    /// identity_one_worker 类中只存在一个 scheduler 类型的 factory
+    /// 还有 input_type 去实例化 coordinator
+
     rxsc::scheduler factory;
 
     class input_type
@@ -161,11 +183,19 @@ public:
         return factory.now();
     }
 
+    /// note by returnzer0:
+    /// 创建 coordinator 调用 scheduler 的 create_worker 传入 composite_subscription 生成 worker
+    /// 这个创建的过程主要由具体的 scheduler 进行实现（scheduler_interface 中定义了create_worker 的接口 ）
+    /// 用 worker 初始化 input_type ，然后使用 input_type 初始化 coordinator
+
     inline coordinator_type create_coordinator(composite_subscription cs = composite_subscription()) const {
         auto w = factory.create_worker(std::move(cs));
         return coordinator_type(input_type(std::move(w)));
     }
 };
+
+/// note by returnzer0:
+/// 以下是三个函数传不同的 scheduler 实例化 identity_one_worker
 
 inline identity_one_worker identity_immediate() {
     static identity_one_worker r(rxsc::make_immediate());
@@ -180,6 +210,10 @@ inline identity_one_worker identity_current_thread() {
 inline identity_one_worker identity_same_worker(rxsc::worker w) {
     return identity_one_worker(rxsc::make_same_worker(w));
 }
+
+/// note by returnzer0:
+/// 针对异步实现的 scheduler 使用 serialize_one_worker
+/// 基本结构类似 identity_one_worker，在identity_one_worker的基础上增加了同步锁
 
 class serialize_one_worker : public coordination_base
 {
