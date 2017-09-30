@@ -10,6 +10,23 @@
 namespace rxcpp {
 
 /// note by returnzer0:
+/// 两个新概念 coordination 和 coordinator ，添加这些是为了简化操作符的实现
+/// 和在操作符的实现中实现按需调用。特别是在Rx.NET 和 RxJava 中，操作符使用
+/// 原子操作和同步原语去协调在同一线程中产生的多个流的消息(像UI事件),
+/// identity_... coordinations 在RxCpp中使用的是默认的实现，没有其他的开销，
+/// syncronize_... 和 observe_on_... coordinations 分别使用互斥量和在worker中
+/// 列队的方式来实现安全的stream的交错。
+/// 
+/// coordination 是一个 coordinators 的工厂且拥有一个调度器
+///
+/// coordinators 是拥有一个 worker，且是一个工厂为了协调observables, 
+/// subscribers 和 schedulable functions.
+/// 
+/// 所有的操作符在同一时间处理多个流的时候（包括subscribe_on and observe_on）必须
+/// 带一个coordination的参数，而不是scheduler。
+/// 摘自（https://github.com/ReturnZero23/RxCpp/blob/master/DeveloperManual.md）
+
+/// note by returnzer0:
 /// 声明 tag_coordinator 和 tag_coordination 
 /// 声明 tag_coordinator 和 tag_coordination 的类型判断模板函数
 
