@@ -11,6 +11,9 @@ namespace rxcpp {
 
 namespace detail {
 
+/// note by returnzer0:
+/// 判断是否是unsubscribe_function 
+
 template<class F>
 struct is_unsubscribe_function
 {
@@ -27,6 +30,10 @@ struct is_unsubscribe_function
 
 struct tag_subscription {};
 struct subscription_base {typedef tag_subscription subscription_tag;};
+
+/// note by returnzer0:
+/// 判断是否是subscription
+
 template<class T>
 class is_subscription
 {
@@ -37,6 +44,10 @@ class is_subscription
 public:
     static const bool value = std::is_convertible<decltype(check<rxu::decay_t<T>>(0)), tag_subscription*>::value;
 };
+
+/// note by returnzer0:
+/// 构造一个适应各种类型的 static_subscription 用来传递 Unsubscribe
+/// unsubscribe 函数用来调用传入类型的 （） 函数。
 
 template<class Unsubscribe>
 class static_subscription
